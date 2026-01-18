@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Masiva</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px; }
+        h1 { color: #333; margin-bottom: 40px; }
+        
+        /* CUADRÍCULA AUTOMÁTICA */
+        #catalogo { 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; 
+        }
+        
+        /* DISEÑO DE LA TARJETA */
+        .tarjeta { 
+            background: white; width: 280px; padding: 20px; border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.2s;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .tarjeta:hover { transform: translateY(-5px); }
+        .tarjeta img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        .titulo { font-size: 18px; font-weight: bold; margin: 5px 0; color: #444; }
+        .precio { color: #27ae60; font-size: 22px; font-weight: bold; margin: 10px 0; }
+        .yappy-text { font-size: 12px; color: #0099ff; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        
+        /* Espacio para el botón de PayPal */
+        .paypal-box { margin-top: 10px; min-height: 40px; }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Mi Super Tienda (Catálogo Completo)</h1>
+    
+    <div id="catalogo"></div>
+
+    <div style="margin-top: 60px; padding: 20px; background: white; border-radius: 10px; max-width: 500px; margin-left: auto; margin-right: auto;">
+        <h3>🇵🇦 Pagos por Yappy</h3>
+        <p>Si prefieres Yappy, busca mi usuario en el directorio:</p>
+        <img src="imagenes/qr.jpg" width="120" alt="QR Yappy">
+        <p><strong>@tu-usuario</strong></p>
+        <p>Envía comprobante al Instagram con el nombre del producto.</p>
+    </div>
+
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+
+    <script>
+        // =================================================================
+        // 📋 TU INVENTARIO (AQUÍ ES DONDE AGREGAS TUS 100 PRODUCTOS)
+        // =================================================================
+        
+        const misProductos = [
+            
+            // PRODUCTO 1
+            { 
+                nombre: "Ebook Aprende HTML", 
+                precio: "10.00", 
+                imagen: "imagenes/portada1.jpg", 
+                archivo: "descargas/ebook-html.html" 
+            },
+
+            // PRODUCTO 2
+            { 
+                nombre: "Pack Fondos Neón", 
+                precio: "5.00", 
+                imagen: "imagenes/neon.jpg", 
+                archivo: "descargas/pack-neon.html" 
+            },
+
+            // ¿QUIERES AGREGAR EL 4? COPIA, PEGA Y EDITA ESTO:
+            /*
+            { 
+                nombre: "NOMBRE DEL PRODUCTO", 
+                precio: "PRECIO", 
+                imagen: "imagenes/FOTO.jpg", 
+                archivo: "descargas/ARCHIVO.html" 
+            },
+            */
+
+        ];
+
+        // =================================================================
+        // ⚙️ LA MÁQUINA (NO TOQUES NADA DE AQUÍ PARA ABAJO)
+        // =================================================================
+        // Esta parte del código lee tu lista y crea las tarjetas sola.
+        
+        const contenedor = document.getElementById('catalogo');
+
+        misProductos.forEach((producto, index) => {
+            // Crear ID único para cada botón
+            let btnId = 'paypal-btn-' + index;
+
+            // Crear el HTML de la tarjeta
+            let tarjetaHTML = document.createElement('div');
+            tarjetaHTML.className = 'tarjeta';
+            tarjetaHTML.innerHTML = `
+                <img src="${producto.imagen}" alt="${producto.nombre}">
+                <div class="titulo">${producto.nombre}</div>
+                <div class="precio">$${producto.precio}</div>
+                <div id="${btnId}" class="paypal-box"></div>
+                <div class="yappy-text">O paga con Yappy 🇵🇦</div>
+            `;
+
+            // Agregar tarjeta a la página
+            contenedor.appendChild(tarjetaHTML);
+
+            // Renderizar botón de PayPal en esa tarjeta
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{ amount: { value: producto.precio } }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                        alert('¡Pago Recibido! Descargando ' + producto.nombre);
+                        window.location.href = producto.archivo;
+                    });
+                }
+            }).render('#' + btnId);
+        });
+
+    </script>
+</body>
+</html>
